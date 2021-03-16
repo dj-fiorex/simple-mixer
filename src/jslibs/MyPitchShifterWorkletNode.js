@@ -50,7 +50,7 @@ get node(){ return this;} // for compatibility
     this.disconnect();
     // await this._recordedBuffer is filled
     console.log(this.name,'sleep begin');
-    await sleep(3000); // sleep in msec
+    //await sleep(3000); // sleep in msec
     console.log(this.name,'sleep end');
     this._onEnd(this._recordedBuffer);
   }
