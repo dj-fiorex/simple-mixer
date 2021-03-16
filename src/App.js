@@ -98,6 +98,9 @@ context.close();
 
 const isAudioWorkletAvailable = (isAudioWorkletNode & isAudioWorklet);
 
+const domain = "";
+const musicUrlPath = domain + "music/"
+
 class App extends Component {
 
   constructor(props) {
@@ -174,7 +177,7 @@ class App extends Component {
               />
             </Tooltip>
           </div>
-          
+
         </center>
 
         <div className='text-divider'>{m.playerTitle}</div>
@@ -292,7 +295,7 @@ class App extends Component {
 
 
         <hr />
-       
+
       </div>
     );
   }
@@ -308,7 +311,7 @@ class App extends Component {
       console.log('AudioContext');
       try {
         this.audioCtx = new AudioContext();
-        await this.loadModule(this.audioCtx, 'worklet/bundle.js');
+        await this.loadModule(this.audioCtx, domain + 'worklet/bundle.js');
         console.log('AudioContext worklet module loaded');
       } catch (error) {
         console.log(error);
@@ -322,7 +325,7 @@ class App extends Component {
         this.audioCtx.decodeAudioData(reader.result,
           function (audioBuffer) {
             if (audioBuffer.numberOfChannels !== 2) {
-              alert('Sorry, only stereo files are supported');
+              //alert('Sorry, only stereo files are supported');
               return;
             }
             this.inputAudio.push({
@@ -365,27 +368,27 @@ class App extends Component {
     const tracks = [
       {
         name: "Il_gatto_e_la_volpe_voce_principale_cantare",
-        url: "/music/008_02_Il_gatto_e_la_volpe_voce_principale_cantare.webm"
+        url: musicUrlPath + "008_02_Il_gatto_e_la_volpe_voce_principale_cantare.webm"
       },
       {
         name: "Il_gatto_e_la_volpe_seconde voci_cantare",
-        url: "/music/008_03_Il_gatto_e_la_volpe_seconde voci_cantare.webm"
+        url: musicUrlPath + "008_03_Il_gatto_e_la_volpe_seconde voci_cantare.webm"
       },
       {
         name: "Il_gatto_e_la_volpe_kazoo_cantare",
-        url: "/music/008_04_Il_gatto_e_la_volpe_kazoo_cantare.webm"
+        url: musicUrlPath + "008_04_Il_gatto_e_la_volpe_kazoo_cantare.webm"
       },
       {
         name: "Il_gatto_e_la_volpe_armonie_cantare",
-        url: "/music/008_05_Il_gatto_e_la_volpe_armonie_cantare.webm"
+        url: musicUrlPath + "008_05_Il_gatto_e_la_volpe_armonie_cantare.webm"
       },
       {
         name: "Il_gatto_e_la_volpe_batteria_cantare",
-        url: "/music/008_06_Il_gatto_e_la_volpe_batteria_cantare.webm"
+        url: musicUrlPath + "008_06_Il_gatto_e_la_volpe_batteria_cantare.webm"
       },
       {
         name: "Il_gatto_e_la_volpe_basso_cantare",
-        url: "/music/008_07_Il_gatto_e_la_volpe_basso_cantare.webm"
+        url: musicUrlPath + "008_07_Il_gatto_e_la_volpe_basso_cantare.webm"
       }
     ]
 
@@ -393,7 +396,7 @@ class App extends Component {
       console.log('AudioContext');
       try {
         this.audioCtx = new AudioContext();
-        await this.loadModule(this.audioCtx, 'worklet/bundle.js');
+        await this.loadModule(this.audioCtx, domain + 'worklet/bundle.js');
         console.log('AudioContext worklet module loaded');
       } catch (error) {
         console.log(error);
@@ -410,7 +413,7 @@ class App extends Component {
       allBuffers.forEach(b => {
         this.audioCtx.decodeAudioData(b.buffer, (audioBuffer) => {
           if (audioBuffer.numberOfChannels !== 2) {
-            alert('Sorry, only stereo files are supported');
+            //alert('Sorry, only stereo files are supported');
             return;
           }
           this.inputAudio.push({
@@ -517,6 +520,10 @@ class App extends Component {
 
     if (event.target.name === 'recordPlayMix') {
       if (this.inputAudio.length === 0 || this.state.isPlaying) return;
+      if (this.state.weAreRecord) {
+        alert("Ricarica la pagina per registrare nuovamente");
+        return;
+      }
 
       const recording = true;
       let offline = isOfflineAudioContext;
@@ -621,7 +628,7 @@ class App extends Component {
         nOutputFrames * 1.1, // add extra 10%
         sampleRate
       );
-      await this.loadModule(context, 'worklet/bundle.js');
+      await this.loadModule(context, domain + 'worklet/bundle.js');
       console.log('OfflineAudioContext Worklet module loaded');
     } else context = this.audioCtx;
 
@@ -788,6 +795,7 @@ class App extends Component {
               }
               this.mediaRecorder.onstop = e => {
                 console.log("recorder stopped", e);
+                stream.getTracks().forEach(t => t.stop())
 
                 const blob = new Blob(this.recordedChunks);
                 this.recordedChunks = [];
@@ -796,34 +804,27 @@ class App extends Component {
 
                 fileReader.onloadend = () => {
 
-                  this.audioCtx.decodeAudioData(fileReader.result,
-                    function (audioBuffer) {
-                      if (audioBuffer.numberOfChannels !== 2) {
-                        alert('Sorry, only stereo files are supported');
-                        //return;
-                      }
-                      this.inputAudio.push({
-                        name: "record",
-                        data: audioBuffer,
-                        source: null,
-                        gainNode: null,
-                        gain: 100,
-                      });
+                  this.audioCtx.decodeAudioData(fileReader.result, audioBuffer => {
+                    this.inputAudio.push({
+                      name: "record",
+                      data: audioBuffer,
+                      source: null,
+                      gainNode: null,
+                      gain: 100,
+                    });
 
-                      const gains = this.state.gains; gains.push(100);
+                    const gains = this.state.gains; gains.push(100);
 
-                      this.setState({
-                        playButtonNextAction: 'Play',
-                        timeA: 0,
-                        playingAt: 0,
-                        //timeB: this.inputAudio[0].data.duration,
-                        gains: gains,
-                      });
-                      this.setState({ weAreRecord: true });
+                    this.setState({
+                      playButtonNextAction: 'Play',
+                      timeA: 0,
+                      playingAt: 0,
+                      gains: gains,
+                    });
+                    this.setState({ weAreRecord: true });
 
-                    }.bind(this),
-
-                    function (error) { console.log("decode error: " + error.err) }
+                  },
+                    error => { console.log("decode error: " + error.err) }
                   )
 
                 }
@@ -831,25 +832,30 @@ class App extends Component {
                 fileReader.readAsArrayBuffer(blob);
 
               }
-              this.mediaRecorder.start();
+              this.mediaRecorder.onstart = e => {
+                //source.start();
+                //console.log(performance.now())
+                //console.log(e);
+              }
               source.start();
+              this.mediaRecorder.start();
+              //console.log(performance.now())
+              //source.start();
             })
 
             // Error callback
             .catch(function (err) {
               console.log('The following getUserMedia error occurred: ' + err);
-            }
-            );
+            });
         } else {
           console.log('getUserMedia not supported on your browser!');
         }
 
-
-
-        source.onended = function (e) {
+        source.onended = e => {
           this.mixedSource = null;
+          if (this.mediaRecorder) this.mediaRecorder.stop();
           this.setState({ isPlaying: false });
-        }.bind(this);
+        }
 
       } //end elseif recordPlayMix
 
