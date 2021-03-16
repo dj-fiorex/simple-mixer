@@ -153,47 +153,8 @@ class App extends Component {
 
     return (
       <div className="App">
-        {m.title}
+        Clicca il tasto play per avviare la riproduzione, clicca il tasto microfono per avviare una registrazione con playback
         <br />
-        <center>
-          (language) &ensp;
-     <span className='tiny-button'>
-            <Tooltip title={m.switchLang}>
-              <button onClick={this.switchLanguage}>
-                {this.state.language === 'ja' ? 'EN' : 'JP'}</button>
-            </Tooltip>
-          </span>
-     &ensp;(AudioWorklet)
-     <Tooltip title={m.worklet}>
-            <IconButton name='toggleWorklet'
-              onClick={
-                () => {
-                  if (isAudioWorkletNode)
-                    this.setState({ useAudioWorklet: !this.state.useAudioWorklet });
-                }
-              } >
-              <MoodIcon color={this.state.useAudioWorklet ? 'primary' : 'disabled'} />
-            </IconButton>
-          </Tooltip>
-        </center>
-        <hr />
-        <span className="selectFile">
-          <Tooltip title={m.fileReader}>
-            <input type="file" name="loadFiles" multiple
-              accept="audio/*" onChange={this.loadFiles} />
-          </Tooltip>
-     &emsp;<span className='tiny-button'>
-            <Tooltip title={m.clearFiles}>
-              <button name='clearFile' onClick={() => {
-                this.setState({
-                  gains: [],
-                  playButtonNextAction: 'load files first!'
-                });
-                this.inputAudio = [];
-              }}
-              >{m.clearButton}</button></Tooltip></span>
-          <br />
-        </span><br />
         <div className='text-divider'>{m.timeTitle}&nbsp;
       ({m.timeSliderPosition}:&nbsp;
        <font color='green'>{this.state.playingAt.toFixed(2)}</font>)
@@ -213,36 +174,18 @@ class App extends Component {
               />
             </Tooltip>
           </div>
-          <span className='tiny-button'>
-            <Tooltip title={m.setA}>
-              <button name='setA'
-                onClick={() => this.setState({ timeA: this.state.playingAt })}>
-                set A
-     </button>
-            </Tooltip>
-      &emsp;
-     <Tooltip title={m.setB}>
-              <button name='setB'
-                onClick={() => this.setState({ timeB: this.state.playingAt })}>
-                set B
-     </button>
-            </Tooltip>
-      &emsp;
-     <Tooltip title={m.resetAB}>
-              <button name='reset'
-                onClick={() => this.setState({ timeA: 0, timeB: this.inputAudio[0].data.duration })}>reset
-     </button>
-            </Tooltip>
-          </span>
+          
         </center>
 
         <div className='text-divider'>{m.playerTitle}</div>
         <center>
           <Tooltip title={m.record}>
-            <IconButton
-              onClick={() => this.handlePlay({ target: { name: 'recordPlayMix' } })} >
-              <MicIcon color={this.state.micOn ? 'secondary' : 'primary'} />
-            </IconButton>
+            <span>
+              <IconButton disabled={this.state.isPlaying}
+                onClick={() => this.handlePlay({ target: { name: 'recordPlayMix' } })} >
+                <MicIcon color={this.state.isPlaying ? 'disabled' : 'primary'} />
+              </IconButton>
+            </span>
           </Tooltip>
           <PlayButton
             nextAction={this.state.playButtonNextAction}
@@ -250,11 +193,13 @@ class App extends Component {
             messages={m}
           />
           <Tooltip title={m.stopButton}>
-            <IconButton
-              onClick={() => this.handlePlay({ target: { name: 'stop' } })} >
-              <StopOutlinedIcon
-                color={this.inputAudio.length ? 'primary' : 'disabled'} />
-            </IconButton>
+            <span>
+              <IconButton disabled={!this.inputAudio.length}
+                onClick={() => this.handlePlay({ target: { name: 'stop' } })} >
+                <StopOutlinedIcon
+                  color={this.inputAudio.length ? 'primary' : 'disabled'} />
+              </IconButton>
+            </span>
           </Tooltip>
           <Tooltip title={m.loopButton}>
             <IconButton
@@ -265,19 +210,23 @@ class App extends Component {
           </Tooltip>
 
           <Tooltip title={m.exportButton} aria-label='exportFile'>
-            <IconButton
-              onClick={() => this.handlePlay({ target: { name: 'exportFile' } })} >
-              <GetAppIcon
-                color={!this.inputAudio.length || this.state.isPlaying ? 'disabled' : 'primary'} />
-            </IconButton>
+            <span>
+              <IconButton disabled={!this.inputAudio.length || this.state.isPlaying}
+                onClick={() => this.handlePlay({ target: { name: 'exportFile' } })} >
+                <GetAppIcon
+                  color={!this.inputAudio.length || this.state.isPlaying ? 'disabled' : 'primary'} />
+              </IconButton>
+            </span>
           </Tooltip>
 
           <Tooltip title={m.playMixButton} aria-label='playMix'>
-            <IconButton
-              onClick={() => this.handlePlay({ target: { name: 'playMix' } })} >
-              <PlayCircleFilledWhiteIcon
-                color={!this.inputAudio.length || this.state.isPlaying ? 'disabled' : 'primary'} />
-            </IconButton>
+            <span>
+              <IconButton disabled={!this.inputAudio.length || this.state.isPlaying}
+                onClick={() => this.handlePlay({ target: { name: 'playMix' } })} >
+                <PlayCircleFilledWhiteIcon
+                  color={!this.inputAudio.length || this.state.isPlaying ? 'disabled' : 'primary'} />
+              </IconButton>
+            </span>
           </Tooltip>
           <Tooltip title={m.bypassButton}>
             <IconButton
@@ -343,13 +292,7 @@ class App extends Component {
 
 
         <hr />
-        {m.version}: {version} &nbsp;&nbsp;
-        <a href={m.url}
-          target='_blank' rel='noreferrer'>{m.guide}</a><br />
-        {m.credit}&nbsp;
-        <a href="https://github.com/cutterbl/SoundTouchJS"
-          target='_blank' rel='noreferrer'>SoundTouchJs</a><br />
-        <hr />
+       
       </div>
     );
   }

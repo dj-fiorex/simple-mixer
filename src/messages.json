@@ -14,7 +14,7 @@
   "setB": "Set timeB at slider position",
   "resetAB": "Reset Time A and B",
   "playerTitle": "Player Controls",
-  "record" : "Turn on/off voice recording (not implemented yet)",
+  "record" : "Start recording while playing",
   "playButton": "Play/Pause/Resume",
   "stopButton": "Stop and rewind to timeA",
   "loopButton": "Loop on/off (with 2 sec interval)",

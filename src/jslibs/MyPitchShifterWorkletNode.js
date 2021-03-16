@@ -58,7 +58,7 @@ get node(){ return this;} // for compatibility
   messageProcessor(e){
     if(e.data.command){
       const {command,args} = e.data;
-      console.log(this.name, 'recvd', command);
+      //console.log(this.name, 'recvd', command);
       switch(command) {
         case 'End':
           this.recordedSamples = args[0]; 
